@@ -1,15 +1,15 @@
-package beaglebone
+package gobotBeaglebone
 
-import "github.com/hybridgroup/gobot/src/gobot"
+import "github.com/hybridgroup/gobot"
 
 type Beaglebone struct {
   gobot.Adaptor
-  Pins []*gobot.DigitalPin
+  Pins []*DigitalPin
   Translations map[string]int
 }
 
 func (b *Beaglebone) Connect() {
-  b.Pins = make([]*gobot.DigitalPin,120)
+  b.Pins = make([]*DigitalPin,120)
   b.Translations = map[string]int {
     "P8_3": 38,
     "P8_4": 39,
@@ -101,7 +101,7 @@ func (b *Beaglebone) TranslatePin(pin string) int{
 func (b *Beaglebone) BeaglebonePin(pin string, mode string) int {
   i := b.TranslatePin(pin)
   if b.Pins[i] == nil || b.Pins[i].Mode != mode {
-    b.Pins[i] = gobot.NewDigitalPin(i, mode) 
+    b.Pins[i] = NewDigitalPin(i, mode) 
   }
   return i
 }

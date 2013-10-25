@@ -1,6 +1,6 @@
-package beaglebone 
+package gobotBeaglebone 
 
-import "github.com/hybridgroup/gobot/src/gobot"
+import "github.com/hybridgroup/gobot"
 
 type Led struct {
   gobot.Driver

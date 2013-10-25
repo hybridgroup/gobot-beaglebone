@@ -1,24 +1,24 @@
 package main
 
 import (
-  "github.com/hybridgroup/gobot/src/gobot"
-  "github.com/hybridgroup/gobot/beaglebone"
+  "github.com/hybridgroup/gobot"
+  "github.com/hybridgroup/gobot-beaglebone"
   "time"
 )
 
 func main() {
 
-  bone := new(beaglebone.Beaglebone)
-  bone.Name = "Beaglebone"
+  beaglebone := new(gobotBeaglebone.Beaglebone)
+  beaglebone.Name = "Beaglebone"
 
-  led := beaglebone.NewLed(bone)
+  led := gobotBeaglebone.NewLed(beaglebone)
   led.Driver = gobot.Driver{
     Name: "led",
     Pin: "P9_12",
   }
 
   connections := []interface{} {
-    bone,
+    beaglebone,
   }
   devices := []interface{} {
     led,
