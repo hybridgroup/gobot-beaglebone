@@ -8,7 +8,7 @@ type Beaglebone struct {
 	Translations map[string]int
 }
 
-func (b *Beaglebone) Connect() {
+func (b *Beaglebone) Connect() bool {
 	b.Pins = make([]*DigitalPin, 120)
 	b.Translations = map[string]int{
 		"P8_3":  38,
@@ -77,9 +77,12 @@ func (b *Beaglebone) Connect() {
 		"P9_30": 112,
 		"P9_31": 110,
 	}
+	return true
 }
 
-func (b *Beaglebone) Disconnect() {}
+func (b *Beaglebone) Finalize() bool   { return true }
+func (b *Beaglebone) Reconnect() bool  { return true }
+func (b *Beaglebone) Disconnect() bool { return true }
 func (b *Beaglebone) IsConnected() bool {
 	return true
 }
