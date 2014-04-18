@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-type DigitalPin struct {
+type digitalPin struct {
 	PinNum  string
 	Mode    string
 	PinFile *os.File
@@ -18,36 +18,51 @@ const GPIO_DIRECTION_WRITE = "out"
 const HIGH = 1
 const LOW = 0
 
-func NewDigitalPin(pinNum int, mode string) *DigitalPin {
-	d := DigitalPin{PinNum: strconv.Itoa(pinNum)}
+func newDigitalPin(pinNum int, mode string) *digitalPin {
+	d := new(digitalPin)
+	d.PinNum = strconv.Itoa(pinNum)
 
-	fi, _ := os.OpenFile(GPIO_PATH+"/export", os.O_WRONLY|os.O_APPEND, 0666)
+	fi, err := os.OpenFile(GPIO_PATH+"/export", os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
+	}
 	fi.WriteString(d.PinNum)
 	fi.Close()
 
 	d.setMode(mode)
 
-	return &d
+	return d
 }
 
-func (d *DigitalPin) setMode(mode string) {
+func (d *digitalPin) setMode(mode string) {
 	d.Mode = mode
 
 	if mode == "w" {
-		fi, _ := os.OpenFile(GPIO_PATH+"/gpio"+d.PinNum+"/direction", os.O_WRONLY, 0666)
+		fi, err := os.OpenFile(GPIO_PATH+"/gpio"+d.PinNum+"/direction", os.O_WRONLY, 0666)
+		if err != nil {
+			panic(err)
+		}
 		fi.WriteString(GPIO_DIRECTION_WRITE)
 		fi.Close()
-		d.PinFile, _ = os.OpenFile(GPIO_PATH+"/gpio"+d.PinNum+"/value", os.O_WRONLY, 0666)
+		d.PinFile, err = os.OpenFile(GPIO_PATH+"/gpio"+d.PinNum+"/value", os.O_WRONLY, 0666)
+		if err != nil {
+			panic(err)
+		}
 	} else if mode == "r" {
-		fi, _ := os.OpenFile(GPIO_PATH+"/gpio"+d.PinNum+"/direction", os.O_WRONLY, 0666)
+		fi, err := os.OpenFile(GPIO_PATH+"/gpio"+d.PinNum+"/direction", os.O_WRONLY, 0666)
+		if err != nil {
+			panic(err)
+		}
 		fi.WriteString(GPIO_DIRECTION_READ)
 		fi.Close()
-		d.PinFile, _ = os.OpenFile(GPIO_PATH+"/gpio"+d.PinNum+"/value", os.O_RDONLY, 0666)
+		d.PinFile, err = os.OpenFile(GPIO_PATH+"/gpio"+d.PinNum+"/value", os.O_RDONLY, 0666)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
-func (d *DigitalPin) DigitalWrite(value string) {
-
+func (d *digitalPin) digitalWrite(value string) {
 	if d.Mode != "w" {
 		d.setMode("w")
 	}
@@ -56,8 +71,11 @@ func (d *DigitalPin) DigitalWrite(value string) {
 	d.PinFile.Sync()
 }
 
-func (d *DigitalPin) Close() {
-	fi, _ := os.OpenFile(GPIO_PATH+"/unexport", os.O_WRONLY|os.O_APPEND, 0666)
+func (d *digitalPin) close() {
+	fi, err := os.OpenFile(GPIO_PATH+"/unexport", os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
+	}
 	fi.WriteString(d.PinNum)
 	fi.Close()
 	d.PinFile.Close()

@@ -1,16 +1,20 @@
 package gobotBeaglebone
 
-import "github.com/hybridgroup/gobot"
+import (
+	"fmt"
+	"github.com/hybridgroup/gobot"
+	"strconv"
+)
 
 type Beaglebone struct {
 	gobot.Adaptor
-	Pins         []*DigitalPin
-	Translations map[string]int
+	pins         []*digitalPin
+	translations map[string]int
 }
 
 func (b *Beaglebone) Connect() bool {
-	b.Pins = make([]*DigitalPin, 120)
-	b.Translations = map[string]int{
+	b.pins = make([]*digitalPin, 120)
+	b.translations = map[string]int{
 		"P8_3":  38,
 		"P8_4":  39,
 		"P8_5":  34,
@@ -83,17 +87,18 @@ func (b *Beaglebone) Connect() bool {
 func (b *Beaglebone) Finalize() bool   { return true }
 func (b *Beaglebone) Reconnect() bool  { return true }
 func (b *Beaglebone) Disconnect() bool { return true }
-func (b *Beaglebone) IsConnected() bool {
-	return true
+
+func (b *Beaglebone) PwmWrite(pin string, val byte) {
+	fmt.Println("not implemented")
 }
 
-func (b *Beaglebone) DigitalWrite(pin string, val string) {
-	i := b.BeaglebonePin(pin, "w")
-	b.Pins[i].DigitalWrite(val)
+func (b *Beaglebone) DigitalWrite(pin string, val byte) {
+	i := b.beaglebonePin(pin, "w")
+	b.pins[i].digitalWrite(strconv.Itoa(int(val)))
 }
 
-func (b *Beaglebone) TranslatePin(pin string) int {
-	for key, value := range b.Translations {
+func (b *Beaglebone) translatePin(pin string) int {
+	for key, value := range b.translations {
 		if key == pin {
 			return value
 		}
@@ -101,10 +106,10 @@ func (b *Beaglebone) TranslatePin(pin string) int {
 	return 0
 }
 
-func (b *Beaglebone) BeaglebonePin(pin string, mode string) int {
-	i := b.TranslatePin(pin)
-	if b.Pins[i] == nil || b.Pins[i].Mode != mode {
-		b.Pins[i] = NewDigitalPin(i, mode)
+func (b *Beaglebone) beaglebonePin(pin string, mode string) int {
+	i := b.translatePin(pin)
+	if b.pins[i] == nil || b.pins[i].Mode != mode {
+		b.pins[i] = newDigitalPin(i, mode)
 	}
 	return i
 }
