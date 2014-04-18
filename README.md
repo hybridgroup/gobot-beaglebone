@@ -4,6 +4,8 @@ Gobot (http://gobot.io/) is a library for robotics and physical computing using 
 
 This library provides an adaptor and driver for the Beaglebone Black (http://beagleboard.org/Products/BeagleBone+Black/)
 
+[![Build Status](https://travis-ci.org/hybridgroup/gobot-beaglebone.svg?branch=master)](https://travis-ci.org/hybridgroup/gobot-beaglebone) [![Coverage Status](https://coveralls.io/repos/hybridgroup/gobot-beaglebone/badge.png?branch=master)](https://coveralls.io/r/hybridgroup/gobot-beaglebone?branch=master)
+
 ## Getting Started
 
 Install the library with: `go get -u github.com/hybridgroup/gobot-beaglebone`
