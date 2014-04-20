@@ -1,19 +1,20 @@
 package gobotBeaglebone
 
 import (
-	"fmt"
 	"github.com/hybridgroup/gobot"
 	"strconv"
 )
 
 type Beaglebone struct {
 	gobot.Adaptor
-	pins         []*digitalPin
+	digitalPins  []*digitalPin
+	pwmPins      []*pwmPin
 	translations map[string]int
 }
 
 func (b *Beaglebone) Connect() bool {
-	b.pins = make([]*digitalPin, 120)
+	b.digitalPins = make([]*digitalPin, 120)
+	b.pwmPins = make([]*pwmPin, 120)
 	b.translations = map[string]int{
 		"P8_3":  38,
 		"P8_4":  39,
@@ -84,17 +85,25 @@ func (b *Beaglebone) Connect() bool {
 	return true
 }
 
-func (b *Beaglebone) Finalize() bool   { return true }
+func (b *Beaglebone) Finalize() bool {
+	for _, pin := range b.pwmPins {
+		if pin != nil {
+			pin.release()
+		}
+	}
+	return true
+}
 func (b *Beaglebone) Reconnect() bool  { return true }
 func (b *Beaglebone) Disconnect() bool { return true }
 
 func (b *Beaglebone) PwmWrite(pin string, val byte) {
-	fmt.Println("not implemented")
+	i := b.pwmPin(pin)
+	b.pwmPins[i].pwmWrite(strconv.Itoa(int(val)), "0")
 }
 
 func (b *Beaglebone) DigitalWrite(pin string, val byte) {
-	i := b.beaglebonePin(pin, "w")
-	b.pins[i].digitalWrite(strconv.Itoa(int(val)))
+	i := b.digitalPin(pin, "w")
+	b.digitalPins[i].digitalWrite(strconv.Itoa(int(val)))
 }
 
 func (b *Beaglebone) translatePin(pin string) int {
@@ -103,13 +112,21 @@ func (b *Beaglebone) translatePin(pin string) int {
 			return value
 		}
 	}
-	return 0
+	panic("Not a valid pin")
 }
 
-func (b *Beaglebone) beaglebonePin(pin string, mode string) int {
+func (b *Beaglebone) digitalPin(pin string, mode string) int {
 	i := b.translatePin(pin)
-	if b.pins[i] == nil || b.pins[i].Mode != mode {
-		b.pins[i] = newDigitalPin(i, mode)
+	if b.digitalPins[i] == nil || b.digitalPins[i].Mode != mode {
+		b.digitalPins[i] = newDigitalPin(i, mode)
+	}
+	return i
+}
+
+func (b *Beaglebone) pwmPin(pin string) int {
+	i := b.translatePin(pin)
+	if b.pwmPins[i] == nil {
+		b.pwmPins[i] = newPwmPin(pin)
 	}
 	return i
 }
