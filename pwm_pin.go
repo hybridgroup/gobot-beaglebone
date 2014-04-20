@@ -5,10 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
-
-const SLOTS = "/sys/devices/bone_capemgr.*"
-const OCP = "/sys/devices/ocp.*"
 
 type pwmPin struct {
 	pinNum    string
@@ -32,22 +30,26 @@ func newPwmPin(pinNum string) *pwmPin {
 	fi.WriteString("am33xx_pwm")
 	fi.Sync()
 	fi.WriteString(fmt.Sprintf("bone_pwm_%v", d.pinNum))
+	fi.Sync()
 	fi.Close()
 
 	ocp, err := filepath.Glob(OCP)
 	if err != nil {
 		panic(err)
 	}
+
 	pwmDevice, err := filepath.Glob(fmt.Sprintf("%v/pwm_test_%v.*", ocp[0], d.pinNum))
 	if err != nil {
 		panic(err)
 	}
-
 	d.pwmDevice = pwmDevice[0]
 
-	fi, err = os.OpenFile(fmt.Sprintf("%v/run", d.pwmDevice), os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		panic(err)
+	for i := 0; i < 10; i++ {
+		fi, err = os.OpenFile(fmt.Sprintf("%v/run", d.pwmDevice), os.O_WRONLY|os.O_APPEND, 0666)
+		if err != nil && i == 9 {
+			panic(err)
+		}
+		time.Sleep(10 * time.Millisecond)
 	}
 	fi.WriteString("1")
 	fi.Close()
