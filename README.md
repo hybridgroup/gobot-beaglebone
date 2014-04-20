@@ -10,6 +10,25 @@ This library provides an adaptor and driver for the Beaglebone Black (http://bea
 
 Install the library with: `go get -u github.com/hybridgroup/gobot-beaglebone`
 
+## Cross compiling for the Beaglebone Black
+You must first configure your Go environment for arm linux cross compiling
+
+```bash
+$ cd $GOROOT/src
+$ GOOS=linux GOARCH=arm ./make.bash --no-clean
+```
+
+Then compile your Gobot program with
+```bash
+$ GOARM=7 GOARCH=arm GOOS=linux go build examples/blink.go
+```
+
+If you are running the default Angstrom linux through the usb->ethernet connection, you can simply upload your program and execute it with
+``` bash
+$ scp blink root@192.168.7.2:/home/root/
+$ ssh -t root@192.168.7.2 "./blink"
+```
+
 ## Example
 
 ```go
