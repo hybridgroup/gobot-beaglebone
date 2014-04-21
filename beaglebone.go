@@ -7,6 +7,7 @@ import (
 
 const SLOTS = "/sys/devices/bone_capemgr.*"
 const OCP = "/sys/devices/ocp.*"
+const I2C_LOCATION = "/dev/i2c-1"
 
 var pins = map[string]int{
 	"P8_3":  38,
@@ -101,6 +102,7 @@ type Beaglebone struct {
 	digitalPins []*digitalPin
 	pwmPins     map[string]*pwmPin
 	analogPins  map[string]*analogPin
+	i2cDevice   *i2cDevice
 }
 
 func (b *Beaglebone) Connect() bool {
@@ -120,6 +122,9 @@ func (b *Beaglebone) Finalize() bool {
 		if pin != nil {
 			pin.close()
 		}
+	}
+	if b.i2cDevice != nil {
+		b.i2cDevice.i2cDevice.Close()
 	}
 	return true
 }
@@ -141,6 +146,19 @@ func (b *Beaglebone) AnalogRead(pin string) int {
 	return b.analogPins[i].analogRead()
 }
 
+func (b *Beaglebone) I2cStart(address byte) {
+	b.i2cDevice = newI2cDevice(I2C_LOCATION, address)
+	b.i2cDevice.start()
+}
+
+func (b *Beaglebone) I2cWrite(data []byte) {
+	b.i2cDevice.write(data)
+}
+
+func (b *Beaglebone) I2cRead(size byte) []byte {
+	return b.i2cDevice.read(size)
+}
+
 func (b *Beaglebone) translatePin(pin string) int {
 	for key, value := range pins {
 		if key == pin {
@@ -158,6 +176,7 @@ func (b *Beaglebone) translatePwmPin(pin string) string {
 	}
 	panic("Not a valid pin")
 }
+
 func (b *Beaglebone) translateAnalogPin(pin string) string {
 	for key, value := range analogPins {
 		if key == pin {
