@@ -54,8 +54,6 @@ func newPwmPin(pinNum string) *pwmPin {
 	fi.WriteString("1")
 	fi.Close()
 
-	d.pwmWrite("0", "0")
-
 	return d
 }
 

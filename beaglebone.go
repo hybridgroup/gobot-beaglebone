@@ -133,7 +133,17 @@ func (b *Beaglebone) Disconnect() bool { return true }
 
 func (b *Beaglebone) PwmWrite(pin string, val byte) {
 	i := b.pwmPin(pin)
-	b.pwmPins[i].pwmWrite(strconv.Itoa(int(val)), "0")
+	period := 500000.0
+	duty := gobot.FromScale(float64(^val), 0, 255.0)
+	b.pwmPins[i].pwmWrite(strconv.Itoa(int(period)), strconv.Itoa(int(period*duty)))
+}
+
+func (b *Beaglebone) InitServo() {}
+func (b *Beaglebone) ServoWrite(pin string, val byte) {
+	i := b.pwmPin(pin)
+	period := 20000000.0
+	duty := gobot.FromScale(float64(^val), 0, 180.0)
+	b.pwmPins[i].pwmWrite(strconv.Itoa(int(period)), strconv.Itoa(int(period*duty)))
 }
 
 func (b *Beaglebone) DigitalWrite(pin string, val byte) {
